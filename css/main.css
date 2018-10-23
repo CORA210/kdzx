@@ -1,0 +1,110 @@
+*{
+	padding: 0;
+	margin: 0;
+}
+body{
+	font-family: "宋体";
+}
+.content{
+	width: 100%;
+	margin: 0 auto;
+}
+.leftDiv{
+	width: 20%;
+	display: inline-block;
+	background:rgba(40, 40, 48, 1);	
+}
+.title{
+	line-height: 40px;
+	text-align: center;
+	font-size: 14px;
+	color: #fff;
+	background:rgba(61, 85, 109, 1);
+	cursor: pointer;
+}
+.title>img{
+	position: relative;
+	left: -20px;
+}
+.contentLeft{
+	color: #fff;
+	/*position: relative;*/
+	padding-top: 40px;
+}
+.contentLeft li{
+	padding:10px 0;
+	line-height: 20px;
+	font-size:14px;
+	border-bottom:2px solid #333333;
+	cursor: pointer;
+}
+.contentLeft i:first-child{
+	margin-left:20px;
+	margin-right:10px;
+	font-size:14px;
+}
+.contentLeft i:last-child{
+	float:right;
+	margin-right:20px;
+	font-size:14px;
+}
+/*右侧*/
+.rightDiv{
+	width: 80%;
+	float: right;
+	border-right:1px solid rgba(204, 204, 204, 1);
+	background-color: rgba(240, 240, 240, 1);
+}
+.r-nav>ul{
+	display: flex;
+	justify-content:center;
+	align-items: center;
+	background-color: #fff; 
+}
+.r-nav>ul>li{
+	width: 500px;
+	height: 40px;
+	padding-bottom: 10px;
+}
+.r-nav>ul>li>div{
+	width: 30px;
+	line-height: 40px;
+	float: left;
+	margin-left: 10px;
+}
+.r-nav>ul>li>div:first-child{
+	margin-left: 10px;
+	cursor: pointer;
+}
+.r-nav>ul>li>div:last-child{
+	margin-left: 30px;
+	position: relative;
+	cursor: pointer;
+}
+.r-nav .info{
+	width: 15px;
+	height: 15px;
+	background-color: red;
+	border-radius: 100%;
+	color: #fff;
+	position: absolute;
+	top:6px;
+	left: 8px;
+	line-height: 15px;
+	text-align: center;
+}
+.r-nav>ul>li:last-child{
+	line-height: 40px;
+	text-align: right;
+	padding-right: 30px;	
+}
+.r-nav>ul>li:last-child>span{
+	font-size: 12px;
+	cursor: pointer;
+	
+}
+.contentRight{
+	/*height: 900px;*/
+	padding: 10px;
+	overflow: auto;
+}

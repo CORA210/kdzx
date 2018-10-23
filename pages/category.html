@@ -1,0 +1,281 @@
+<!-- 栏目管理 -->
+<div id="category">
+	<div class="c-content">
+		<div class="c-header">
+			<button class="btn btn-success addBtn">新 增</button>
+			<button class="btn btn-success batchDeletedBtn">批量删除</button>
+		</div>
+		<div class="c-footer">
+			<form action="">
+				<table class="table table-bordered text-center">
+					<tr>
+						<td>编号</td>
+						<td>栏目名称</td>
+						<td>父栏目</td>
+						<td>描述</td>
+						<td>操作</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+	<!-- 模态框 -->
+	<div class="modal" id="categoryModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header text-center">
+					<div class="backDiv">
+						<i class="iconfont icon-zuo"></i>
+						<span>返回</span>
+					</div>
+					<div class="modal-title">添加栏目</div>
+				</div>
+				<div class="modal-body">
+					<form class="form">
+						<div class="form-group">
+							<label for="">栏目名称</label>
+							<input type="text" name="categoryName" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="">父栏目</label>
+						    <select name="categoryParent" class="form-control">
+						    	<option value="">请选择</option>
+						    </select>
+						</div>
+						
+						<div class="form-group">
+							<label for="">描述</label>
+							<textarea class="form-control" name="categoryComment" id="" cols="30" rows="5"></textarea>
+						</div>
+						<!-- 重置 -->
+						<div class="form-group hide">
+							<button type="reset">重置</button>
+						</div>						
+					</form>
+				</div>
+					<div class="modal-footer">
+						<!-- 提示信息 -->
+						<span class="messageSpan"></span>
+						<button class="btn btn-success btn-sm saveBtn">确认</button>
+					</div>	
+			</div>				
+		</div>
+	</div>
+</div>
+
+<!-- </div> -->
+<script>
+	$(function(){
+		var categories = [];
+		var option = "新增";
+		//设置模态框高度
+		var currentId = '';
+		$('.modal-content').height($(window).height());
+		// $('.modal-content').height($('.contentRight').height());
+		// 	//打开模态框
+			$('.addBtn').click(function(){
+				option = "新增";
+				//清空select里的内容，除了第一行，从后台获取所有的栏目，追加option显示模态框，清空表单，清空提示信息
+				$('button[type=reset]').trigger('click');
+				//清除提示信息
+				$('.messageSpan').html('');
+				addOption();
+				// $('#categoryModal').show();
+			});
+			//返回
+			$('.backDiv').click(function(){
+				$('#categoryModal').hide();
+			});
+			//保存
+			$('.saveBtn').click(function(){
+				//获取数据，表单验证，不通过提示用户，如果通过封装对象，传递给后台，保存成功，提示用户，刷新数据，关闭模态框
+				//获取数据
+				var categoryName = $('input[name=categoryName]').val();
+				var categoryParent = $('select[name=categoryParent]').val();
+				var categoryComment = $('textarea[name=categoryComment]').val();
+				//表单验证
+				if(categoryName&&categoryComment){
+					//封装对象
+					var obj = {
+						name:categoryName,
+						comment:categoryComment,
+						no:'',
+						parentId:categoryParent
+					};
+					if(option=="修改"){
+						obj.id = currentId;
+					}
+					$.post(baseURL+'/manager/category/saveOrUpdateCategory',obj,function(res){
+						console.log(res,'保存或更新成功');
+						alert('保存或更新成功');
+						loadData();
+						$('#categoryModal').hide();
+						});
+					}else{
+						//提示用户
+						$('.messageSpan').html('请输入完整的信息');
+					}
+			});
+			//修改
+			$('#category table').on({
+				click:function(){
+					option = "修改";
+					$('.messageSpan').html('');
+					var id = $(this).closest('tr').find('input[type=checkbox]').val();
+					currentId = id;
+					var cat = categories.filter(function(item){
+						return item.id == id;
+					})[0];
+					//设置值
+					$('input[name=categoryName]').val(cat.name);
+					$('textarea[name=categoryComment]').val(cat.comment);
+					addOption(function(){
+						$('select[name=categoryParent]').val(cat.parent?cat.parent.id:'');
+					});
+				}
+			},'i[title=修改]');
+			//删除
+			$('#category table').on({
+				click:function(){
+					var id = $(this).closest('tr').find('input[type=checkbox]').val();
+					var obj = {
+						id:id
+					};
+					$.get(baseURL+'/manager/category/deleteCategoryById',obj,function(res){
+						console.log(res,'删除成功');
+						loadData();
+						if(res.status==200){
+							alert('删除成功');
+							loadData();
+						}else{
+							alert('删除失败');
+							console.log(res.message);
+						}
+					});
+				}
+			},'i[title=删除]');
+			//批量删除
+			$('.batchDeletedBtn').click(function(){
+				var ids = $('#category input[type=checkbox]:checked').map(function(index,item){
+					return $(item).val();
+				}).get();
+				var obj = {
+					ids:ids.toString()
+				};
+				$.post(baseURL+'/manager/category/batchDeleteCategory',obj,function(res){
+					if(res.status==200){
+						alert('批量删除成功');
+						loadData();
+					}else{
+						alert('批量删除失败');
+						console.log(res.message);
+					}
+				});
+			});
+
+			loadData();
+			function addOption(handle){
+				$('#category select option:not(:first)').remove();
+				$.get(baseURL+'/manager/category/findAllCategory',function(res){
+					res.data.forEach(function(item){
+						var $option = $('<option value="'+item.id+'">'+item.name+'</option>');
+						$('#category select').append($option);
+					});
+					if(handle){
+						handle();
+					}
+					$('#categoryModal').show();
+				});
+			}
+			// 获取数据
+			function loadData(){
+				$('#category table tr:not(:first)').remove();
+				$.get(baseURL+'/manager/category/findAllCategory',function(res){
+					categories = res.data;
+					res.data.forEach(function(item){
+						var $tr = $(`<tr>
+							<td><input type="checkbox" value="`+item.id+`"></td>
+							<td>`+item.name+`</td>
+							<td>`+(item.parent?item.parent.name:'-')+`</td>
+							<td>`+item.comment+`</td>
+							<td>
+								<i class="iconfont icon-edit-1-copy" title="修改"></i>
+								<i class="iconfont icon-shanchu" title="删除"></i>
+							</td>
+							</tr>`);
+							$('#category table').append($tr);
+					});
+				});	
+			}
+	});
+</script>
+<style>
+	#category{
+		background-color: #fff;
+		padding: 10px;
+	}
+	#category table{
+		margin-top: 10px;
+	}
+	#category table i{
+		color: #66bb0d;
+		cursor: pointer;
+	}
+	#category table i:nth-child(2){
+		color: red;
+		margin-left: 10px;
+	}
+	.modal{
+		background-color: rgba(0,0,0,p.4);
+	}
+	.modal-dialog{
+		width: 300px;
+		margin-top: 0;
+		margin-right: 0;
+	}
+	.backDiv{
+		float: left;
+	}
+	.messageSpan{
+		color: red;
+	}
+	/*.c-content{
+		width: 98%;
+		margin: 0 auto;
+		padding: 10px;
+		background-color: #fff;
+	}   
+	.c-footer{
+		margin-top: 10px;
+		text-align: center;
+	}
+	.modal{
+		background-color: rgba(0,0,0,0.4);
+	}
+	设置位置
+	.modal-dialog{
+		width: 300px;
+		margin-top: 0;
+		margin-right: 0;
+	}
+	.backDiv{
+		float: left;
+		cursor: pointer;
+	}
+	.messageSpan{
+		color: red;
+	}
+	.alertDiv{
+		display: none;
+		position: absolute;
+		top: 20px;
+		right: 20px;
+		width: 300px;
+	}
+	.modal-foot{
+		float: right;
+	}
+	.miaoshu{
+		height: 100px;
+	}*/
+</style>
